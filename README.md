@@ -19,3 +19,14 @@ A production-ready food delivery backend built with **Node.js**, **Express.js**,
 - Input Validation
 - Rate Limiting
 - Automated Tests
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- PostgreSQL
+- JWT Authentication
+- Jest
+- ESLint
+- Prettier
+- Husky
