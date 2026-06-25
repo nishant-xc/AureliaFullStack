@@ -1,7 +1,7 @@
 {
-    "name": "backend",
+    "name": "aurelia-fullstack-backend",
     "version": "1.0.0",
-    "description": "",
+    "description": "Production-ready food delivery backend built with Node.js, Express.js and PostgreSQL.",
     "main": "index.js",
     "type": "module",
     "scripts": {
@@ -21,7 +21,7 @@
         ]
     },
     "keywords": [],
-    "author": "",
+    "author": "Nishant Tiwari",
     "license": "ISC",
     "dependencies": {
         "bcryptjs": "^3.0.3",
