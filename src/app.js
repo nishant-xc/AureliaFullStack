@@ -7,6 +7,8 @@ import reviewRoutes from "./modules/reviews/routes/review.routes.js";
 import paymentRoutes from "./modules/payments/routes/payment.routes.js";
 import restaurantOrderRoutes from "./modules/restaurant-orders/routes/restaurantOrder.routes.js";
 import express from "express";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./docs/swagger.js";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -109,6 +111,8 @@ app.get("/health/database", async (req, res, next) => {
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/v1/auth", authRoutes);
 
