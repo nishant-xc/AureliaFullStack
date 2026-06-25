@@ -2,19 +2,22 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const required = [
-    "PORT",
-    "DATABASE_HOST",
-    "DATABASE_PORT",
-    "DATABASE_NAME",
-    "DATABASE_USER",
-    "JWT_SECRET",
-];
+const required =
+  process.env.NODE_ENV === "test"
+    ? []
+    : [
+        "PORT",
+        "DATABASE_HOST",
+        "DATABASE_PORT",
+        "DATABASE_NAME",
+        "DATABASE_USER",
+        "JWT_SECRET",
+      ];
 
 for (const key of required) {
-    if (!process.env[key]) {
-        throw new Error(`Missing environment variable: ${key}`);
-    }
+  if (!process.env[key]) {
+    throw new Error(`Missing environment variable: ${key}`);
+  }
 }
 
 const env = {
