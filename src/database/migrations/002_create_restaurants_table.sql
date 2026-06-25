@@ -71,14 +71,14 @@ CREATE TABLE IF NOT EXISTS restaurants (
 
 );
 
-CREATE INDEX idx_restaurants_owner
+CREATE INDEX IF NOT EXISTS idx_restaurants_owner
 ON restaurants(owner_id);
 
-CREATE INDEX idx_restaurants_city
+CREATE INDEX IF NOT EXISTS idx_restaurants_city
 ON restaurants(city);
 
-CREATE INDEX idx_restaurants_slug
+CREATE INDEX IF NOT EXISTS idx_restaurants_slug
 ON restaurants(slug);
 
-CREATE INDEX idx_restaurants_rating
+CREATE INDEX IF NOT EXISTS idx_restaurants_rating
 ON restaurants(average_rating);

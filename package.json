@@ -12,6 +12,7 @@
         "lint:fix": "eslint src tests --fix",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
+        "migrate": "node src/database/scripts/migrate.js",
         "prepare": "husky"
     },
     "lint-staged": {

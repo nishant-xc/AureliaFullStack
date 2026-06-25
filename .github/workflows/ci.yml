@@ -50,6 +50,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Run Database Migrations
+        run: npm run migrate  
+
       - name: Run ESLint
         run: npm run lint
 
