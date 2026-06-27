@@ -11,8 +11,9 @@ export function generateAccessToken(user) {
         },
         config.jwt.secret,
         {
-            expiresIn: config.jwt.expiresIn,
-        }
+    expiresIn: config.jwt.expiresIn,
+    algorithm: "HS256",
+}
     );
 }
 
