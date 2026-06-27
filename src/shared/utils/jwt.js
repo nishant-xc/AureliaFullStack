@@ -18,5 +18,7 @@ export function generateAccessToken(user) {
 }
 
 export function verifyAccessToken(token) {
-    return jwt.verify(token, config.jwt.secret);
+    return jwt.verify(token, config.jwt.secret, {
+        algorithms: ["HS256"],
+    });
 }
