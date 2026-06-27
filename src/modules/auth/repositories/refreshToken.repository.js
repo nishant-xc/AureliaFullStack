@@ -2,6 +2,7 @@ import pool from "../../../database/database.js";
 
 export async function createRefreshToken({
     userId,
+    jti,
     tokenHash,
     expiresAt,
     ipAddress = null,
@@ -12,6 +13,7 @@ export async function createRefreshToken({
         INSERT INTO refresh_tokens
         (
             user_id,
+            jti,
             token_hash,
             expires_at,
             ip_address,
@@ -23,12 +25,23 @@ export async function createRefreshToken({
             $2,
             $3,
             $4,
-            $5
+            $5,
+            $6
         )
-        RETURNING *
+        RETURNING
+            id,
+            user_id,
+            jti,
+            token_hash,
+            expires_at,
+            revoked,
+            revoked_at,
+            last_used_at,
+            created_at
         `,
         [
             userId,
+            jti,
             tokenHash,
             expiresAt,
             ipAddress,
@@ -53,6 +66,31 @@ export async function findRefreshToken(tokenHash) {
     return result.rows[0];
 }
 
+export async function findRefreshTokenByJti(jti) {
+    const result = await pool.query(
+        `
+        SELECT *
+        FROM refresh_tokens
+        WHERE jti = $1
+        LIMIT 1
+        `,
+        [jti]
+    );
+
+    return result.rows[0];
+}
+
+export async function updateLastUsed(jti) {
+    await pool.query(
+        `
+        UPDATE refresh_tokens
+        SET last_used_at = CURRENT_TIMESTAMP
+        WHERE jti = $1
+        `,
+        [jti]
+    );
+}
+
 export async function revokeRefreshToken(tokenHash) {
     await pool.query(
         `
@@ -63,6 +101,19 @@ export async function revokeRefreshToken(tokenHash) {
         WHERE token_hash = $1
         `,
         [tokenHash]
+    );
+}
+
+export async function revokeRefreshTokenByJti(jti) {
+    await pool.query(
+        `
+        UPDATE refresh_tokens
+        SET
+            revoked = TRUE,
+            revoked_at = CURRENT_TIMESTAMP
+        WHERE jti = $1
+        `,
+        [jti]
     );
 }
 

@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { config } from "../config/index.js";
 
 export function generateAccessToken(user) {
@@ -17,11 +18,12 @@ export function generateAccessToken(user) {
 }
 
 export function generateRefreshToken(user) {
-    return jwt.sign(
+    const jti = crypto.randomUUID();
+
+    const token = jwt.sign(
         {
             id: user.id,
-            email: user.email,
-            role: user.role,
+            jti,
         },
         config.jwt.refreshSecret,
         {
@@ -29,6 +31,11 @@ export function generateRefreshToken(user) {
             algorithm: "HS256",
         }
     );
+
+    return {
+        token,
+        jti,
+    };
 }
 
 export function verifyAccessToken(token) {
