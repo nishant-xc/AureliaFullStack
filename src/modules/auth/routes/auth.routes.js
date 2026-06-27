@@ -1,6 +1,11 @@
 import { Router } from "express";
 
-import { register, login, me } from "../controllers/auth.controller.js";
+import {
+    register,
+    login,
+    me,
+    refresh,
+} from "../controllers/auth.controller.js";
 
 import { authenticate } from "../../../shared/middlewares/auth.middleware.js";
 
@@ -93,6 +98,7 @@ router.post("/register", authLimiter, validate(registerSchema), register);
  */
 
 router.post("/login", authLimiter, validate(loginSchema), login);
+router.post("/refresh", refresh);
 
 /**
  * @openapi

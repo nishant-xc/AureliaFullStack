@@ -5,17 +5,20 @@ describe("Auth Registration", () => {
     test("Register user successfully", async () => {
         const uniqueEmail = `test_${Date.now()}@example.com`;
 
-        const response = await request(app).post("/api/v1/auth/register").send({
-            full_name: "Test User",
-            email: uniqueEmail,
-            password: "Password123",
-            phone: "9876543210",
-        });
+        const response = await request(app)
+            .post("/api/v1/auth/register")
+            .send({
+                full_name: "Test User",
+                email: uniqueEmail,
+                password: "Password123",
+                phone: "9876543210",
+            });
 
         expect(response.statusCode).toBe(201);
-
         expect(response.body.success).toBe(true);
 
-        expect(response.body.data.token).toBeDefined();
+        expect(response.body.data.user).toBeDefined();
+        expect(response.body.data.accessToken).toBeDefined();
+        expect(response.body.data.refreshToken).toBeDefined();
     });
 });

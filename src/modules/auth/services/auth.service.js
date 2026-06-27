@@ -1,12 +1,20 @@
 import {
     createUser,
     findUserByEmail,
+    findUserById,
     getUserWithPassword,
 } from "../repositories/auth.repository.js";
 
-import { hashPassword, comparePassword } from "../../../shared/utils/password.js";
+import {
+    hashPassword,
+    comparePassword,
+} from "../../../shared/utils/password.js";
 
-import { generateAccessToken } from "../../../shared/utils/jwt.js";
+import {
+    generateAccessToken,
+    generateRefreshToken,
+    verifyRefreshToken,
+} from "../../../shared/utils/jwt.js";
 
 import { ROLES } from "../../../shared/constants/index.js";
 
@@ -36,11 +44,10 @@ export async function registerUser(data) {
         role: ROLES.CUSTOMER,
     });
 
-    const token = generateAccessToken(user);
-
     return {
         user,
-        token,
+        accessToken: generateAccessToken(user),
+        refreshToken: generateRefreshToken(user),
     };
 }
 
@@ -57,13 +64,14 @@ export async function loginUser(data) {
         throw new AuthenticationError("Invalid email or password");
     }
 
-    const passwordMatched = await comparePassword(data.password, user.password_hash);
+    const passwordMatched = await comparePassword(
+        data.password,
+        user.password_hash
+    );
 
     if (!passwordMatched) {
         throw new AuthenticationError("Invalid email or password");
     }
-
-    const token = generateAccessToken(user);
 
     return {
         user: {
@@ -73,6 +81,31 @@ export async function loginUser(data) {
             role: user.role,
             created_at: user.created_at,
         },
-        token,
+        accessToken: generateAccessToken(user),
+        refreshToken: generateRefreshToken(user),
+    };
+}
+
+/*
+|--------------------------------------------------------------------------
+| Refresh Access Token
+|--------------------------------------------------------------------------
+*/
+
+export async function refreshAccessToken(refreshToken) {
+    if (!refreshToken) {
+        throw new AuthenticationError("Refresh token is required");
+    }
+
+    const payload = verifyRefreshToken(refreshToken);
+
+    const user = await findUserById(payload.id);
+
+    if (!user) {
+        throw new AuthenticationError("Invalid refresh token");
+    }
+
+    return {
+        accessToken: generateAccessToken(user),
     };
 }

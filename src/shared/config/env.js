@@ -3,21 +3,22 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const required =
-  process.env.NODE_ENV === "test"
-    ? []
-    : [
-        "PORT",
-        "DATABASE_HOST",
-        "DATABASE_PORT",
-        "DATABASE_NAME",
-        "DATABASE_USER",
-        "JWT_SECRET",
-      ];
+    process.env.NODE_ENV === "test"
+        ? []
+        : [
+              "PORT",
+              "DATABASE_HOST",
+              "DATABASE_PORT",
+              "DATABASE_NAME",
+              "DATABASE_USER",
+              "JWT_SECRET",
+              "JWT_REFRESH_SECRET",
+          ];
 
 for (const key of required) {
-  if (!process.env[key]) {
-    throw new Error(`Missing environment variable: ${key}`);
-  }
+    if (!process.env[key]) {
+        throw new Error(`Missing environment variable: ${key}`);
+    }
 }
 
 const env = {
@@ -34,23 +35,21 @@ const env = {
     },
 
     JWT_SECRET: process.env.JWT_SECRET,
-
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
+
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+    JWT_REFRESH_EXPIRES_IN:
+        process.env.JWT_REFRESH_EXPIRES_IN || "30d",
 
     REDIS_URL: process.env.REDIS_URL || "",
 
     CLOUDINARY_NAME: process.env.CLOUDINARY_NAME || "",
-
     CLOUDINARY_KEY: process.env.CLOUDINARY_KEY || "",
-
     CLOUDINARY_SECRET: process.env.CLOUDINARY_SECRET || "",
 
     EMAIL_HOST: process.env.EMAIL_HOST || "",
-
     EMAIL_PORT: process.env.EMAIL_PORT || "",
-
     EMAIL_USER: process.env.EMAIL_USER || "",
-
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD || "",
 };
 
