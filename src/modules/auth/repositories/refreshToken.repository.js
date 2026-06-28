@@ -1,5 +1,24 @@
 import pool from "../../../database/database.js";
 
+export async function replaceRefreshToken(oldJti, newJti) {
+    await pool.query(
+        `
+        UPDATE refresh_tokens
+        SET
+            revoked = TRUE,
+            revoked_at = CURRENT_TIMESTAMP,
+            replaced_by_token = (
+                SELECT id
+                FROM refresh_tokens
+                WHERE jti = $2
+            )
+         WHERE jti = $1
+  AND revoked = FALSE
+        `,
+        [oldJti, newJti]
+    );
+}
+
 export async function createRefreshToken({
     userId,
     jti,
@@ -80,14 +99,46 @@ export async function findRefreshTokenByJti(jti) {
     return result.rows[0];
 }
 
-export async function updateLastUsed(jti) {
-    await pool.query(
+export async function findActiveRefreshTokenByJti(jti) {
+    const result = await pool.query(
+        `
+        SELECT *
+        FROM refresh_tokens
+        WHERE jti = $1
+          AND revoked = FALSE
+          AND expires_at > CURRENT_TIMESTAMP
+        LIMIT 1
+        `,
+        [jti]
+    );
+
+    return result.rows[0];
+}
+
+export async function touchRefreshToken(jti) {
+    const result = await pool.query(
         `
         UPDATE refresh_tokens
         SET last_used_at = CURRENT_TIMESTAMP
         WHERE jti = $1
+        RETURNING *
         `,
         [jti]
+    );
+
+    return result.rows[0];
+}
+
+export async function revokeRefreshTokenById(id) {
+    await pool.query(
+        `
+        UPDATE refresh_tokens
+        SET
+            revoked = TRUE,
+            revoked_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        `,
+        [id]
     );
 }
 
