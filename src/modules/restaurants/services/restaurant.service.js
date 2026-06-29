@@ -5,11 +5,21 @@ import {
     getRestaurantById,
     updateRestaurant,
     deleteRestaurant,
+    restaurantSlugExists,
+    restaurantSlugExistsExceptId,
 } from "../repositories/restaurant.repository.js";
+
+import AppError from "../../../shared/errors/AppError.js";
+
+import { generateSlug } from "../../../shared/utils/slug.js";
 
 class RestaurantService {
     async create(ownerId, data) {
-        const slug = data.name.trim().toLowerCase().replace(/\s+/g, "-");
+        const slug = generateSlug(data.name);
+
+if (await restaurantSlugExists(slug)) {
+    throw new AppError("Restaurant slug already exists", 409);
+}
 
         return await createRestaurant({
             owner_id: ownerId,
@@ -42,12 +52,8 @@ class RestaurantService {
         const restaurant = await getRestaurantBySlug(slug);
 
         if (!restaurant) {
-            const error = new Error("Restaurant not found");
-
-            error.status = 404;
-
-            throw error;
-        }
+    throw new AppError("Restaurant not found", 404);
+}
 
         return restaurant;
     }
@@ -56,58 +62,53 @@ class RestaurantService {
         const restaurant = await getRestaurantById(id);
 
         if (!restaurant) {
-            const error = new Error("Restaurant not found");
-
-            error.status = 404;
-
-            throw error;
-        }
+    throw new AppError("Restaurant not found", 404);
+}
 
         if (restaurant.owner_id !== ownerId) {
-            const error = new Error("You are not authorized to update this restaurant");
+    throw new AppError(
+        "You are not authorized to delete this restaurant",
+        403
+    );
+}
 
-            error.status = 403;
+if (data.name && data.name !== restaurant.name) {
+   const newSlug = generateSlug(data.name);
 
-            throw error;
-        }
+    if (await restaurantSlugExistsExceptId(newSlug, id)) {
+        throw new AppError("Restaurant slug already exists", 409);
+    }
 
-        return await updateRestaurant(id, {
-            name: data.name,
+    data.slug = newSlug;
+}
 
-            description: data.description,
+return await updateRestaurant(id, {
+    slug: data.slug ?? restaurant.slug,
+    name: data.name,
+    description: data.description,
+    email: data.email,
+    phone: data.phone,
+    address: data.address,
+    city: data.city,
+    state: data.state,
+    country: data.country,
+});
 
-            email: data.email,
-
-            phone: data.phone,
-
-            address: data.address,
-
-            city: data.city,
-
-            state: data.state,
-
-            country: data.country,
-        });
     }
 
     async delete(id, ownerId) {
         const restaurant = await getRestaurantById(id);
 
         if (!restaurant) {
-            const error = new Error("Restaurant not found");
-
-            error.status = 404;
-
-            throw error;
-        }
+    throw new AppError("Restaurant not found", 404);
+}
 
         if (restaurant.owner_id !== ownerId) {
-            const error = new Error("You are not authorized to delete this restaurant");
-
-            error.status = 403;
-
-            throw error;
-        }
+    throw new AppError(
+        "You are not authorized to delete this restaurant",
+        403
+    );
+}
 
         await deleteRestaurant(id);
 

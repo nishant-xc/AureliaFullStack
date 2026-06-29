@@ -90,6 +90,37 @@ export async function getRestaurantBySlug(slug) {
     return result.rows[0];
 }
 
+export async function restaurantSlugExists(slug) {
+    const result = await pool.query(
+        `
+        SELECT EXISTS(
+            SELECT 1
+            FROM restaurants
+            WHERE slug = $1
+        ) AS exists
+        `,
+        [slug]
+    );
+
+    return result.rows[0].exists;
+}
+
+export async function restaurantSlugExistsExceptId(slug, id) {
+    const result = await pool.query(
+        `
+        SELECT EXISTS(
+            SELECT 1
+            FROM restaurants
+            WHERE slug = $1
+              AND id <> $2
+        ) AS exists
+        `,
+        [slug, id]
+    );
+
+    return result.rows[0].exists;
+}
+
 /* ==========================================================
    Get Restaurant By ID
 ========================================================== */
@@ -116,29 +147,31 @@ export async function updateRestaurant(id, data) {
         `
         UPDATE restaurants
         SET
-            name = $1,
-            description = $2,
-            email = $3,
-            phone = $4,
-            address = $5,
-            city = $6,
-            state = $7,
-            country = $8,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $9
+    name = $1,
+    slug = $2,
+    description = $3,
+    email = $4,
+    phone = $5,
+    address = $6,
+    city = $7,
+    state = $8,
+    country = $9,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $10
         RETURNING *
         `,
         [
-            data.name,
-            data.description,
-            data.email,
-            data.phone,
-            data.address,
-            data.city,
-            data.state,
-            data.country,
-            id,
-        ]
+    data.name,
+    data.slug,
+    data.description,
+    data.email,
+    data.phone,
+    data.address,
+    data.city,
+    data.state,
+    data.country,
+    id,
+]
     );
 
     return result.rows[0];
